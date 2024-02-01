@@ -1,0 +1,19 @@
+RewriteEngine on
+
+RewriteCond %{THE_REQUEST} /([^.]+)\.html [NC]
+RewriteRule ^ /%1 [NC,L,R]
+
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^ %{REQUEST_URI}.html [NC,L]
+
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+ErrorDocument 404 /de/404
+
+Redirect 301 /index /de/
+Redirect 301 /index.htm /de/
+Redirect 301 /de/index /de/
+
+Redirect 301 /fr/index /fr/
+Redirect 301 /it/index /it/
