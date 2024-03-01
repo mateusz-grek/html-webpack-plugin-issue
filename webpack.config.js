@@ -5,9 +5,8 @@
 const path = require('path');
 const fs = require('fs');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HTMLWebpackPlugin = require('html-webpack-plugin');
+const HtmlBundlerPlugin = require('html-bundler-webpack-plugin');
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const SitemapPlugin = require('sitemap-webpack-plugin').default;
 const Glob = require('glob');
@@ -36,29 +35,27 @@ const templateFiles = filesToIncludeArr
     output: filename.replace(/\.ejs$/, '.html'),
 }));
 
-const htmlPluginEntries = templateFiles.map((template) => new HTMLWebpackPlugin({
-  inject: true,
-  hash: false,
+const htmlEntries = templateFiles.map((template) => ({
   filename: template.output,
-  template: path.resolve(environment.paths.source, template.input),
-  newVariable: 'test variable',
-  
+  import: path.resolve(environment.paths.source, template.input),
+  // use the `data` option to pass variables into the template
+  data: {
+    // use any object name which will be available in html template
+    pageData: {
+      newVariable: 'test variable',
+    },
+  },
 }));
 
-
 module.exports = {
-  entry: {
-    app: path.resolve(environment.paths.source, 'js', 'app.js'),
-  },
   output: {
-    filename: 'js/[name].js',
     path: environment.paths.output,
   },
   module: {
     rules: [
       {
         test: /\.((c|sa|sc)ss)$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+        use: ['css-loader', 'postcss-loader', 'sass-loader'],
       },
       {
         test: /\.js$/,
@@ -124,9 +121,19 @@ module.exports = {
     ],
   },
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].css',
+    new HtmlBundlerPlugin({
+      // define many page templates here
+      entry: htmlEntries,
+      js: {
+        // JS output filename
+        filename: 'js/[name].[contenthash:8].js',
+      },
+      css: {
+        // CSS output filename
+        filename: 'css/[name].[contenthash:8].css',
+      },
     }),
+
     new CleanWebpackPlugin({
       verbose: true,
       cleanOnceBeforeBuildPatterns: ['**/*', '!stats.json'],
@@ -140,6 +147,6 @@ module.exports = {
       }
     })
     
-  ].concat(htmlPluginEntries),
+  ],
   target: 'web',
 };
