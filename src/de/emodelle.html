@@ -1,5 +1,15 @@
-
-      <%= require('html-loader!./components/02_footer_section/index.html').default %>
-
-      <br>
-      THIS VARIABLE IS FROM EMODELLE:   <%= htmlWebpackPlugin.options.newVariable %>
+<!DOCTYPE html>
+<html>
+      <head>
+            <!-- relative path to SCSS source file -->
+            <link href="./components/02_footer_section/style.scss" rel="stylesheet" />
+            <!-- relative path to JS source file -->
+            <script src="../js/app.js" defer="defer"></script>
+      </head>
+      <body>
+            <!-- pass the `pageData` object from webpack into the partial as 2nd parameter -->
+            <%~ include('/src/de/components/02_footer_section/index.html', { pageData }) %>
+            <br>
+            THIS VARIABLE IS FROM EMODELLE: <%= pageData.newVariable %>
+      </body>
+</html>
